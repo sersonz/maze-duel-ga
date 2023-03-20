@@ -6,71 +6,68 @@ sys.path.insert(1, "../common")
 from common import Common
 
 class Maze:
-	def __init__(self, size):
+	def __init__(self, x, y):
 		'''
 		Creates a new Maze instance.
 		Parameters:
-			size: A tuple representing the size of the maze
+			x: The horizontal size of the maze
+			y: The vertical size of the maze
 		'''
-		if size[0] < 1 or size[1] < 1:
+		if x < 1 or x < 1:
 			raise ValueError("Maze of size " + str(self.size) + " is invalid")
 		else:
-			self.size = (2*size[0] + 1, 2*size[1] + 1)
-			self.maze = [[1 for i in range(self.size[0])] for j in range(self.size[1])]
+			self.x = 2*x + 1
+			self.y = 2*y + 1
+			self.maze = [[1 for i in range(self.x)] for j in range(self.y)]
 			self.initialized = False
 			self.valid = False
+			self.start = None
+			self.end = None
 			
-	def initMaze(self, method="random"):
+	def initMaze(self, method="depth"):
 		'''
 		Initializes this maze.
 		'''
 		if self.initialized:
-			self.maze = [[1 for i in range(self.size[0])] for j in range(self.size[1])]
-		if method == "ab":
-			visited_cells = 1
-			curCell = (random.randrange(1, self.size[0], 2), random.randrange(1, self.size[1], 2))
-			while visited_cells < (self.size[0] - 1)/2 * (self.size[1] - 1)/2:
-				neighbors = []
-				if curCell[0] > 1 and self.maze[curCell[0] - 2][curCell[1]] == 1:
-					neighbors.append((curCell[0] - 2, curCell[1]))
-				if curCell[0] < self.size[0] - 2 and self.maze[curCell[0] + 2][curCell[1]] == 1:
-					neighbors.append((curCell[0] + 2, curCell[1]))
-				if curCell[1] > 1 and self.maze[curCell[0]][curCell[1] - 2] == 1:
-					neighbors.append((curCell[0], curCell[1] - 2))
-				if curCell[1] < self.size[1] - 2 and self.maze[curCell[0]][curCell[1] + 2] == 1:
-					neighbors.append((curCell[0], curCell[1] + 2))
-				if len(neighbors) == 0:
-					if curCell[0] > 1 and self.maze[curCell[0] - 2][curCell[1]] == 0:
-						neighbors.append((curCell[0] - 2, curCell[1]))
-					if curCell[0] < self.size[0] - 2 and self.maze[curCell[0] + 2][curCell[1]] == 0:
-						neighbors.append((curCell[0] + 2, curCell[1]))
-					if curCell[1] > 1 and self.maze[curCell[0]][curCell[1] - 2] == 0:
-						neighbors.append((curCell[0], curCell[1] - 2))
-					if curCell[1] < self.size[1] - 2 and self.maze[curCell[0]][curCell[1] + 2] == 0:
-						neighbors.append((curCell[0], curCell[1] + 2))
-					curCell = random.choice(neighbors)
-					continue
-				random.shuffle(neighbors)
-				for (x, y) in neighbors:
-					if self.maze[x][y] > 0:
-						self.maze[(curCell[0] + x) // 2][(curCell[1] + y) // 2] = 0
-						self.maze[x][y] = 0
-						visited_cells += 1
-						curCell = (x, y)
-						break
+			self.maze = [[1 for i in range(self.x)] for j in range(self.y)]
+		if method=="depth":
+			self.start = (random.randrange(0, self.x, 2), random.randrange(0, self.y, 2))
+			self.depthGenerate(self.start, [])
 			self.initialized = True
-		elif method == "random":
-			for i in range(self.size[0]):
-				for j in range(self.size[1]):
-					self.maze[i][j] = random.randrange(0, 2)
 		else:
 			raise NotImplementedError("Invalid maze init method " + str(method))
+			
+	def depthGenerate(self, pos, visited=[]):
+		visited.append(pos)
+		nextPos = self.randomNeighbor(pos, visited)
+		while nextPos != None:
+			posBetween = ((pos[0] + nextPos[0])//2, (pos[1] + nextPos[1])//2)
+			self.maze[posBetween[0]][posBetween[1]] = 0
+			self.maze[nextPos[0]][nextPos[1]] = 0
+			self.maze[pos[0]][pos[1]] = 0
+			self.depthGenerate(nextPos, visited)
+			nextPos = self.randomNeighbor(pos, visited)
+		
+	def randomNeighbor(self, pos, visited):
+		neighbors = []
+		if pos[0] > 1 and (pos[0] - 2, pos[1]) not in visited:
+			neighbors.append((pos[0] - 2, pos[1]))
+		if pos[0] < self.x - 2 and (pos[0] + 2, pos[1]) not in visited:
+			neighbors.append((pos[0] + 2, pos[1]))
+		if pos[1] > 1 and (pos[0], pos[1] - 2) not in visited:
+			neighbors.append((pos[0], pos[1] - 2))
+		if pos[1] < self.y - 2 and (pos[0], pos[1] + 2) not in visited:
+			neighbors.append((pos[0], pos[1] + 2))
+		if len(neighbors) == 0:
+			return None
+		random.shuffle(neighbors)
+		return random.choice(neighbors)
 		
 	def asTextObject(self):
 		string = ""
-		for i in range(self.size[0]):
-			for j in range(self.size[1]):
-				string = string + str(self.maze[i][j])
+		for i in range(self.x):
+			for j in range(self.y):
+				string = string + ("█" if self.maze[i][j] == 1 else " ")
 			string = string + "\n"
 		return string
 	
@@ -79,7 +76,7 @@ class Maze:
 		
 	def asGeneticObject(self):
 		string = ""
-		for i in range(self.size[0]):
-			for j in range(self.size[1]):
+		for i in range(self.x):
+			for j in range(self.y):
 				string = string + str(self.maze[i][j])
 		return string
