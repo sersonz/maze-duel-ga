@@ -26,16 +26,20 @@ class Maze:
 			
 	def initMaze(self, method="depth"):
 		'''
-		Initializes this maze.
+		Initializes this maze using DFS as a reference.
 		'''
 		if self.initialized:
 			self.maze = [[1 for i in range(self.x)] for j in range(self.y)]
-		if method=="depth":
-			self.start = (random.randrange(0, self.x, 2), random.randrange(0, self.y, 2))
-			self.depthGenerate(self.start, [])
-			self.initialized = True
-		else:
-			raise NotImplementedError("Invalid maze init method " + str(method))
+		self.start = (random.randrange(0, self.x, 2), random.randrange(0, self.y, 2))
+		# For some reason, we have to pass the parameter in manually
+		# or trying to initialize this again won't work
+		self.depthGenerate(self.start, [])
+		self.initialized = True
+		# From the outer ring, select a random start and end point
+		potentialPoints = [(0, i) for i in range(self.y)] + [(self.x - 1, i) for i in range(self.y)] \
+			+ [(i, 0) for i in range(self.x)] + [(i, self.y - 1) for i in range(self.x)]
+		self.start = random.choice(potentialPoints)
+		self.end = random.choice(potentialPoints)
 			
 	def depthGenerate(self, pos, visited=[]):
 		visited.append(pos)
@@ -67,7 +71,12 @@ class Maze:
 		string = ""
 		for i in range(self.x):
 			for j in range(self.y):
-				string = string + ("█" if self.maze[i][j] == 1 else " ")
+				if (i, j) == self.start:
+					string = string + str(0)
+				elif (i, j) == self.end:
+					string = string + str(1)
+				else:
+					string = string + ("█" if self.maze[i][j] == 1 else " ")
 			string = string + "\n"
 		return string
 	
