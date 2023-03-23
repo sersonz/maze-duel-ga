@@ -1,7 +1,10 @@
+import turtle
 import types
 import itertools
 import random
 import sys
+import matplotlib.pyplot as plt
+
 sys.path.insert(1, "../common")
 from common import Common
 
@@ -89,3 +92,22 @@ class Maze:
 			for j in range(self.y):
 				string = string + str(self.maze[i][j])
 		return string
+	
+	
+	def display(self):
+		plt.imshow(self.maze, cmap=plt.cm.binary)
+		plt.plot(self.start[0], self.start[1], 'go')
+		plt.plot(self.end[0], self.end[1], 'ro')
+		plt.title('Maze', size=12)
+		plt.show()
+
+
+
+
+
+if __name__ == "__main__":
+	maze = Maze(20, 20)
+	maze.initMaze()
+	maze.printTextObject()
+	maze.display()
+	# print(maze.asGeneticObject())
