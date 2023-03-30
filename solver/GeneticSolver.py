@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from Register import Register
 from Instruction import *
 
@@ -15,7 +16,28 @@ class GeneticSolver:
 		self.nextVariableRegister = 0
 		self.nextOutputRegister = 0
 		self.instructions = []
+		self.shouldMove = False
 		self.stackPointer = 0
+		
+	def init(self, minInstructions, maxInstructions):
+		self.addConstantRegister(1)
+		self.addConstantRegister(-1)
+		self.addInputRegister(valid=lambda x: x >= 0 and x <= 1)
+		self.addInputRegister(valid=lambda x: x >= 0 and x <= 1)
+		self.addInputRegister(valid=lambda x: x >= 0 and x <= 1)
+		self.addInputRegister(valid=lambda x: x >= 0 and x <= 1)
+		self.addOutputRegister(0)
+		instructionCount = random.randrange(minInstructions, maxInstructions)
+		registerPool = []
+		for register in list(self.registers.keys()):
+			if self.registers[register].registerType in ["input", "constant"]:
+				registerPool.append(self.registers[register])
+		instructionCount = random.randrange(minInstructions, maxInstructions)
+		for i in range(1, instructionCount):
+			chosenInstruction = random.choice(instructionList)
+			term1 = random.choice(registerPool)
+			term2 = random.choice(registerPool)
+			self.instructions.append(chosenInstruction([term1, term2], self.registers["o0"]))
 		
 	def addConstantRegister(self, value):
 		self.registers["c" + str(self.nextConstantRegister)] = Register("c" + str(self.nextConstantRegister), "constant", initValue=value)
@@ -51,8 +73,18 @@ class GeneticSolver:
 	def step(self, inputs={}):
 		for inp in list(inputs.keys()):
 			self.registers[inp].assign(inputs[inp], inputOp=True)
-		self.instructions[self.stackPointer].op()
-		self.stackPointer += 1
+		try:
+		   result = self.instructions[self.stackPointer].op()
+		   self.stackPointer += 1
+		   if result == False:
+			   while type(self.instructions[stackPointer]) != EndIfInstruction:
+				   self.stackPointer += 1
+				   if self.stackPointer > len(self.instructions):
+					   break
+		except Exception as e:
+			print(e)
+
+		
 			
 	def __str__(self):
 		result = "GeneticSolver("
@@ -63,11 +95,4 @@ class GeneticSolver:
 			
 if __name__=="__main__":
 	test = GeneticSolver()
-	test.addConstantRegister(1)
-	test.addInputRegister(valid=lambda x: x < 5)
-	test.addOutputRegister(0)
-	test.addVariableRegister(1)
-	test.addInstruction(AddInstruction, ["v0", 1], "o0")
-	print(test)
-	test.step({"i0": 1})
-	print(test)
+	test.init(10, 25)

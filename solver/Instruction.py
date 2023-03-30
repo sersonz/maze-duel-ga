@@ -5,72 +5,34 @@ class Instruction:
 			raise ValueError("Output must be an output register")
 		self.output = output
 		
-	def addTerm(self, term):
-		self.terms.append(term)
-		
 	def op(self):
 		return NotImplementedError("Cannot execute base Instruction")
-
-class AddInstruction(Instruction):
+	
+class TurnRightInstruction(Instruction):
 	def op(self):
-		result = None
-		if len(self.terms) == 0:
-			self.output.assign(self.output.value())
-			return
-		else:
-			result = 0
-			for term in self.terms:
-				if "Register" in str(type(term)):
-					result = result + term.value
-				else:
-					result = result + term
-			self.output.assign(result)
-			return
-			
-class SubtractInstruction(Instruction):
+		self.output.assign((self.output.value + 1) % 4)
+		return None
+		
+class TurnLeftInstruction(Instruction):
 	def op(self):
-		result = None
-		if len(self.terms) == 0:
-			self.output.assign(self.output.value())
-			return
-		else:
-			result = 0
-			for term in self.terms:
-				if "Register" in str(type(term)):
-					result = result - term.value
-				else:
-					result = result - term
-			self.output.assign(result)
-			return
-			
-class MultiplyInstruction(Instruction):
+		self.output.assign((self.output.value - 1) % 4)
+		return None
+	
+class BranchGEInstruction(Instruction):
 	def op(self):
-		result = None
-		if len(self.terms) == 0:
-			self.output.assign(self.output.value())
-			return
-		else:
-			result = 0
-			for term in self.terms:
-				if "Register" in str(type(term)):
-					result = result * term.value
-				else:
-					result = result * term
-			self.output.assign(result)
-			return
-			
-class DivideInstruction(Instruction):
+		return (self.terms[0].value >= self.terms[1].value)
+	
+class BranchLEInstruction(Instruction):
 	def op(self):
-		result = None
-		if len(self.terms) == 0:
-			self.output.assign(self.output.value())
-			return
-		else:
-			result = 0
-			for term in self.terms:
-				if "Register" in str(type(term)):
-					result = result / term.value
-				else:
-					result = result / term
-			self.output.assign(result)
-			return	
+		return (self.terms[0].value <= self.terms[1].value)
+	
+class BranchEQInstruction(Instruction):
+	def op(self):
+		return (self.terms[0].value == self.terms[1].value)
+	
+class EndIfInstruction(Instruction):
+	def op(self):
+		return None
+	
+instructionList = [TurnRightInstruction, TurnLeftInstruction] * 25 + [BranchGEInstruction, \
+				   BranchLEInstruction, BranchEQInstruction] * 2 + [EndIfInstruction] * 5
