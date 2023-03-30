@@ -43,7 +43,12 @@ class Maze:
 			+ [(i, 0) for i in range(self.x)] + [(i, self.y - 1) for i in range(self.x)]
 		self.start = random.choice(potentialPoints)
 		self.end = random.choice(potentialPoints)
-			
+		# re-generate start and end points if they are on a wall
+		while self.maze[self.start[0]][self.start[1]] == 1:
+			self.start = random.choice(potentialPoints)
+		while self.maze[self.end[0]][self.end[1]] == 1:
+			self.end = random.choice(potentialPoints)
+
 	def depthGenerate(self, pos, visited=[]):
 		visited.append(pos)
 		nextPos = self.randomNeighbor(pos, visited)
@@ -96,8 +101,8 @@ class Maze:
 	
 	def display(self):
 		plt.imshow(self.maze, cmap=plt.cm.binary)
-		plt.plot(self.start[0], self.start[1], 'go')
-		plt.plot(self.end[0], self.end[1], 'ro')
+		plt.plot(self.start[1], self.start[0], 'go')
+		plt.plot(self.end[1], self.end[0], 'ro')
 		plt.title('Maze', size=12)
 		plt.show()
 
@@ -106,8 +111,9 @@ class Maze:
 
 
 if __name__ == "__main__":
-	maze = Maze(20, 20)
+	maze = Maze(5, 5)
 	maze.initMaze()
-	maze.printTextObject()
+
 	maze.display()
-	# print(maze.asGeneticObject())
+	print(maze.start)
+	# print(type(maze.asGeneticObject()))

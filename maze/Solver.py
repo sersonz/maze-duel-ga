@@ -1,3 +1,4 @@
+from collections import deque
 import matplotlib.pyplot as plt
 
 
@@ -6,10 +7,15 @@ class Solver:
     DFS, BFS and Genetic algorithms for solving mazes.
     '''
 
-    def __init__(self, maze):
-        self.maze = maze
+    def __init__(self, maze, width, height, start, end):
+        self.width = width
+        self.height = height
+        self.maze = self.convertMaze(maze)
         self.visited = []
+        self.finalPath = []
         self.path = []
+        self.start = start
+        self.end = end
         self.moves = {
             "north": (-1, 0),
             "south": (1, 0),
@@ -17,19 +23,61 @@ class Solver:
             "west": (0, -1)
         }
 
-    def DFS(self, start, end):
-        self.visited.append(start)
-        if start == end:
-            self.path.append(start)
-            return True
-        else:
-            neighbours = self.getNeighbours(start)
+    def convertMaze(self, maze):
+        # convert a binary maze to a 2D array of ints
+        convertedMaze = [[0]*self.width for _ in range(self.height)]
+        for i in range(self.height):
+            for j in range(self.width):
+                convertedMaze[i][j] = int(maze[i*self.width + j])
+        return convertedMaze
+
+    def DFS(self):
+        stack = [self.start]
+        prev = {}
+        visited = []
+        while stack:
+            node = stack.pop()
+            visited.append(node)
+            self.path.append(node)
+            if node == self.end:
+                # backtrack from end to start
+                while node != self.start:
+                    node = prev[node]
+                    self.finalPath.append(node)
+                    self.path.remove(node)
+                self.finalPath.reverse()
+                return True
+            neighbours = self.getNeighbours(node)
             for neighbour in neighbours:
-                if neighbour not in self.visited:
-                    if self.DFS(neighbour, end):
-                        self.path.append(start)
-                        return True
-            return False
+                if neighbour not in visited:
+                    stack.append(neighbour)
+                    visited.append(neighbour)
+                    prev[neighbour] = node
+        return False
+
+
+    def BFS(self):
+        queue = [self.start]
+        prev = {}
+        visited = []
+        while queue:
+            node = queue.pop(0)
+            visited.append(node)
+            self.path.append(node)
+            if node == self.end:
+                while node != self.start:
+                    node = prev[node]
+                    self.finalPath.append(node)
+                    self.path.remove(node)
+                self.finalPath.reverse()
+                return True
+            neighbours = self.getNeighbours(node)
+            for neighbour in neighbours:
+                if neighbour not in visited:
+                    queue.append(neighbour)
+                    visited.append(neighbour)
+                    prev[neighbour] = node
+        return False
 
     def getNeighbours(self, node):
         neighbours = []
@@ -41,45 +89,29 @@ class Solver:
         return neighbours
 
     def validMove(self, node):
+        if node[0] < 0 or node[0] >= len(self.maze):
+            return False
+        if node[1] < 0 or node[1] >= len(self.maze[0]):
+            return False
         if self.maze[node[0]][node[1]] == 1:
             return False
         return True
 
-    def displayPath(self, start, end):
+    def displayPath(self):
         plt.imshow(self.maze, cmap=plt.cm.binary)
 
         # hide the axes
         plt.xticks([])
         plt.yticks([])
 
-        # hide the frame
-        ax = plt.gca()
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-        ax.spines['left'].set_visible(False)
-
-        # draw borders around each cell
-        for x in range(len(self.maze)):
-            for y in range(len(self.maze[0])):
-                # top border 
-                plt.plot([y + 0.5, y + 1 + 0.5],
-                         [x + 0.5, x + 0.5], color='black')
-                # bottom border
-                plt.plot([y + 0.5, y + 1 + 0.5],
-                         [x + 1 + 0.5, x + 1 + 0.5], color='black')
-                # left border
-                plt.plot([y + 0.5, y + 0.5],
-                         [x + 0.5, x + 1 + 0.5], color='black')
-                # right border
-                plt.plot([y + 0.5 + 1, y + 1 + 0.5],
-                         [x + 0.5, x + 1 + 0.5], color='black')
-
-        for node in self.path:
+        for node in self.finalPath:
             plt.plot(node[1], node[0], 'bo', markersize=10)
 
-        plt.plot(start[0], start[1], 'go')
-        plt.plot(end[1], end[0], 'ro')
+        for node in self.path:
+            plt.plot(node[1], node[0], 'bo', markersize=10, alpha=0.3)
+
+        plt.plot(self.start[1], self.start[0], 'go', markersize=10)
+        plt.plot(self.end[1], self.end[0], 'ro', markersize=10)
         plt.title('Maze', size=12)
         plt.show()
 
@@ -107,12 +139,13 @@ if __name__ == "__main__":
         [1, 1, 1, 1]
     ]
 
-solver = Solver(maze)
-start = (1, 1)
-end = (1, 7)
-path = solver.DFS(start, end)
-if path:
+    maze1B = "11111001100110011111"
+    start = (1, 1)
+    end = (3, 2)
+    solver = Solver(maze1B, 4, 5, start, end)
 
-    solver.displayPath(start, end)
-else:
-    print("No path found")
+    path = solver.BFS()
+    if path:
+        solver.displayPath()
+    else:
+        print("No path found")
