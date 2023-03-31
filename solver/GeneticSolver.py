@@ -34,7 +34,7 @@ class GeneticSolver:
 	def crossover(self, parent2):
 		point1 = random.randrange(0, len(self.string))
 		point2 = random.randrange(0, len(self.string))
-		mutationLength = 3
+		mutationLength = 1
 		while(random.randrange(0, 2) == 1):
 			mutationLength += 1
 		string1 = list(self.string)
