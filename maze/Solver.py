@@ -10,7 +10,10 @@ class Solver:
     def __init__(self, maze, width, height, start, end):
         self.width = width
         self.height = height
-        self.maze = self.convertMaze(maze)
+        if type(maze) == str:
+            self.maze = self.convertMaze(maze)
+        else:
+            self.maze = maze
         self.visited = []
         self.finalPath = []
         self.path = []
@@ -54,7 +57,6 @@ class Solver:
                     visited.append(neighbour)
                     prev[neighbour] = node
         return False
-
 
     def BFS(self):
         queue = [self.start]
