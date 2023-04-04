@@ -2,13 +2,14 @@ import turtle
 import types
 import itertools
 import random
-import sys
+import sys, os
 import matplotlib.pyplot as plt
 from Solver import Solver
 
-# sys.path.insert(1, "../common")
-# from common import Common
-
+current = os.path.dirname(os.path.realpath(__file__))
+parent_directory = os.path.dirname(current)
+sys.path.append(parent_directory + "/common")
+from common import Common
 
 class Maze:
 	def __init__(self, x, y):
@@ -182,14 +183,36 @@ class Maze:
 
 		return offspring1, offspring2
 
-	def mutate(self, individual):
-		# Choose a random wall
-		x = random.randrange(0, self.x)
-		y = random.randrange(0, self.y)
-		# If the wall is a wall, change it to a path
-		if individual[y][x] == 1:
-			individual[y][x] = 0
+	def mutation(self, repeat = 1):
+        # Put the entire maze into a long string and swap an empty tile with a wall
+		while repeat > 0:
+            # Choose a random wall and random empty tile, below are the x and y coordinates
+			empty = (random.randrange(self.x), random.randrange(self.y))
+			tile = (random.randrange(self.x), random.randrange(self.y))
 
+			while self.maze[empty[1]][empty[0]] != 0:
+				empty = (random.randrange(self.x), random.randrange(self.y))
+			
+			while self.maze[tile[1]][tile[0]] != 1:
+				tile = (random.randrange(self.x), random.randrange(self.y))
+
+            # Create a temporary copy and swap the two values
+			temp = []
+			for row in self.maze:
+				temp.append(row)
+			
+			temp[empty[1]][empty[0]] = 1
+			temp[tile[1]][tile[0]] = 0
+
+            # Check if maze is still solvable
+			solver = Solver(temp, self.x, self.y, self.start, self.end)
+			path = solver.BFS()
+			if not path:
+				repeat += 1
+			else:
+				self.maze = temp
+			repeat -= 1
+		    
 	def depthGenerate(self, pos, visited=[]):
 		visited.append(pos)
 		nextPos = self.randomNeighbor(pos, visited)
@@ -216,7 +239,14 @@ class Maze:
 			return None
 		random.shuffle(neighbors)
 		return random.choice(neighbors)
+		
 
+		replacement = []
+		for i in range(self.y):
+			replacement.append([total_string[i * self.x : (i * self.x) + self.x]])
+		
+		self.maze = replacement
+	
 	def asTextObject(self):
 		string = ""
 		for i in range(self.x):
@@ -254,8 +284,9 @@ if __name__ == "__main__":
 	population = 5
 	generations = 2
 	maze = Maze(5, 5)
-	maze.initMaze(method, popSize=population, genLimit=generations)
-
-	# maze.display()
-	# print(maze.start)
+	maze.initMaze()
+	maze.display()
+	maze.mutation()
+	maze.display()
+	print(maze.start)
 	# print(type(maze.asGeneticObject()))
