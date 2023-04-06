@@ -115,26 +115,6 @@ class Maze:
 		print("Best individual: " + str(bestIndividual))
 		self.maze = bestIndividual
 
-	def parentSelection(self, fitnessValues, matingPoolSize):
-		'''
-		Selects two parents using random uniform selection.
-		'''
-		selectedParents = []
-		# Select two parents
-		for _ in range(matingPoolSize):
-			# Select a random individual
-			selectedParents.append(random.randint(0, len(fitnessValues)-1))
-		return selectedParents
-
-	def getBestIndividual(self, population, fitnessValues):
-		bestIndividual = None
-		bestFitness = 0
-		for i in range(len(population)):
-			if fitnessValues[i] >= bestFitness:
-				bestIndividual = population[i]
-				bestFitness = fitnessValues[i]
-		return bestIndividual
-
 	def createInitialPopulation(self, popSize):
 		population = []
 		# randomly generate a population of individuals with 0s and 1s
@@ -143,24 +123,6 @@ class Maze:
 				self.x)] for __ in range(self.y)]
 			population.append(individual)
 		return population
-
-	def survivorSelection(self, currentPop, currentFitness, offspring, offspringFitness):
-		# mu, lambda
-		population = []
-		fitness = []
-
-		currentPopFitness = list(zip(currentPop, currentFitness))
-		rankedPopFitness = sorted(
-			currentPopFitness, key=lambda x: x[1], reverse=True)
-
-		for i in range(len(offspring)):
-			population.append(rankedPopFitness[i][0])
-			fitness.append(rankedPopFitness[i][1])
-
-		population = population + offspring
-		fitness = fitness + offspringFitness
-
-		return population, fitness
 
 	def evalFitness(self, individual):
 		# currently implemented to use DFS as a reference
@@ -192,7 +154,7 @@ class Maze:
 
 		return Maze(self.x, self.y, offspring1), Maze(self.x, self.y, offspring2)
 
-	def mutation(self, individual):
+	def mutate(self, individual):
 		# print("here")
 		# print("individual" + str(individual))
 		# Put the entire maze into a long string and swap an empty tile with a wall
@@ -217,9 +179,9 @@ class Maze:
 		solver = Solver(temp, self.x, self.y, self.start, self.end)
 		path = solver.DFS()
 		if path:
-			return temp
+			return Maze(self.x, self.y, tmp)
 		else:
-			return individual
+			return None
 
 	def depthGenerate(self, pos, visited=[]):
 		visited.append(pos)

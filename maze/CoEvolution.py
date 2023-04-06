@@ -101,6 +101,16 @@ class CoEvolver:
 					solvers.append((solver, self.evaluateSolver(solver)))
 				fitness = sorted(solvers, key=lambda x: x[1], reverse=True)
 				self.solvers = [x[0] for x in fitness][:self.solverCount]				
+				
+	def parentSelection(self, algorithm="mg"):
+		match algorithm:
+			case "mg":
+				parent1 = random.choice(self.mazes)
+				parent2 = random.choice(self.mazes)
+			case "ms":
+				parent1 = random.choice(self.solvers)
+				parent2 = random.choice(self.solvers)
+		return parent1, parent2
 
 
 if __name__ == "__main__":
