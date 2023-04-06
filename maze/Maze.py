@@ -12,7 +12,7 @@ sys.path.append(parent_directory + "/common")
 from common import Common
 
 class Maze:
-	def __init__(self, x, y):
+	def __init__(self, x, y, maze=None):
 		'''
 		Creates a new Maze instance.
 		Parameters:
@@ -24,7 +24,7 @@ class Maze:
 		else:
 			self.x = 2*x + 1
 			self.y = 2*y + 1
-			self.maze = [[1 for i in range(self.x)] for j in range(self.y)]
+			self.maze = ([[1 for i in range(self.x)] for j in range(self.y)])
 			self.initialized = False
 			self.valid = False
 			self.start = None
@@ -32,7 +32,7 @@ class Maze:
 			self.popSize = None
 			self.genLimit = None
 
-	def initMaze(self, method="depth", popSize=None, genLimit=None):
+	def initMaze(self, method="depth", popSize=None, genLimit=None, maze=None):
 		'''
 		Initializes this maze using DFS as a reference.
 		'''
@@ -58,6 +58,12 @@ class Maze:
 			case "genetic":
 				self.geneticGenerate(popSize=popSize, genLimit=genLimit)
 				self.initialized = True
+			case "existing":
+				self.maze = maze.maze
+				self.start = maze.start
+				self.end = maze.end
+				self.popSize = maze.popSize
+				self.genLimit = maze.genLimit
 		while self.maze[self.start[0]][self.start[1]] == 1:
 			self.start = random.choice(potentialPoints)
 		while self.maze[self.end[0]][self.end[1]] == 1:
@@ -184,7 +190,7 @@ class Maze:
 				if parent1[i] not in offspring2:
 					offspring2.append(parent1[i])
 
-		return offspring1, offspring2
+		return Maze(self.x, self.y, offspring1), Maze(self.x, self.y, offspring2)
 
 	def mutation(self, individual):
 		# print("here")
