@@ -62,6 +62,7 @@ class CoEvolver:
 	
 	def evaluateMaze(self, maze):
 		euc = lambda x1, x2, y1, y2: ((x1-x2)**2 + (y1-y2)**2)**0.5
+		initial_distance = euc(maze.start[0], maze.end[0], maze.start[1], maze.end[1])
 		total_fitness = 0
 		for solver in self.solvers:
 			
@@ -74,7 +75,7 @@ class CoEvolver:
 				else:
 					lastOnGoal = -1
 			total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
-			total_fitness += (total_distance if total_distance != 0 else 1) / (lastOnGoal if lastOnGoal != -1 else 1)
+			total_fitness += (lastToGoal if lastToGoal != -1 else len(path)) / (2 - (total_distance / initial_distance))
 		return total_fitness / len(self.solvers)
 
 
