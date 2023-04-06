@@ -9,7 +9,7 @@ from GeneticSolver import GeneticSolver
 
 class CoEvolver:
 
-	def __init__(self, x, y, mazeCount, solverCount, initialLength, lengthenPeriod):
+	def __init__(self, x, y, mazeCount, solverCount, initialLength, lengthenPeriod, mu, lam):
 		if x < 1 or x < 1:
 			raise ValueError("Maze of size " + str(self.size) + " is invalid")
 		else:
@@ -20,7 +20,10 @@ class CoEvolver:
 			for j in range(solverCount):
 				self.solvers.append(GeneticSolver(initialLength))
 			self.lengthenPeriod = lengthenPeriod
-			
+			self.mu = mu
+			self.lam = lam
+			self.mazeCount = mazeCount
+			self.solverCount = solverCount
 
 
 	def tracePath(self, solverPath, maze, start):
@@ -77,6 +80,27 @@ class CoEvolver:
 			total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
 			total_fitness += (lastToGoal if lastToGoal != -1 else len(path)) / (2 - (total_distance / initial_distance))
 		return total_fitness / len(self.solvers)
+		
+	def survivorSelection(self, algorithm="mg"):
+		match algorithm:
+			case "mg":
+				# Will use mu+lambda selection just to test
+				# We have 2 weeks to revise if this is a bad choice,
+				# but we're under a bit of time pressure
+				mazes = []
+				for maze in self.mazes:
+					mazes.append((maze, self.evaluateMaze(maze)))
+				fitness = sorted(mazes, key=lambda x: x[1], reverse=True)
+				self.mazes = [x[0] for x in fitness][:self.mazeCount]
+			case "ms":
+				# Will use mu+lambda selection just to test
+				# We have 2 weeks to revise if this is a bad choice,
+				# but we're under a bit of time pressure
+				solvers = []
+				for solver in self.solvers:
+					solvers.append((solver, self.evaluateSolver(solver)))
+				fitness = sorted(solvers, key=lambda x: x[1], reverse=True)
+				self.solvers = [x[0] for x in fitness][:self.solverCount]				
 
 
 if __name__ == "__main__":
