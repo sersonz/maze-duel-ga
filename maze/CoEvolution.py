@@ -60,19 +60,22 @@ class CoEvolver:
 			path.append(current)
 		return path
 	
-	def evaluateMaze(self, solver, maze):
+	def evaluateMaze(self, maze):
 		euc = lambda x1, x2, y1, y2: ((x1-x2)**2 + (y1-y2)**2)**0.5
-		path = self.tracePath(solver.asGeneticObject(), maze, maze.start)
-		onGoal = False
-		lastOnGoal = -1
-		for i in range(len(path)):
-			if path[i] == maze.end:
-				if lastOnGoal == -1:
-					lastOnGoal = i
-			else:
-				lastOnGoal = -1
-		total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
-		return (total_distance if total_distance != 0 else 1) / (lastOnGoal if lastOnGoal != -1 else 1)
+		total_fitness = 0
+		for solver in self.solvers:
+			
+			path = self.tracePath(solver.asGeneticObject(), maze, maze.start)
+			lastOnGoal = -1
+			for i in range(len(path)):
+				if path[i] == maze.end:
+					if lastOnGoal == -1:
+						lastOnGoal = i
+				else:
+					lastOnGoal = -1
+			total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
+			total_fitness += (total_distance if total_distance != 0 else 1) / (lastOnGoal if lastOnGoal != -1 else 1)
+		return total_fitness / len(self.solvers)
 
 
 if __name__ == "__main__":
