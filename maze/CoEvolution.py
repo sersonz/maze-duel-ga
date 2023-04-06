@@ -1,84 +1,100 @@
 from Maze import Maze
 from Solver import Solver
+import os
+import sys
+current = os.path.dirname(os.path.realpath(__file__))
+parent_directory = os.path.dirname(current)
+sys.path.append(parent_directory + "/solver")
 from GeneticSolver import GeneticSolver
 
+class CoEvolver:
 
-def tracePath(solverPath, start):
-    # trace path of solver on maze
-    # 0 is stop, 1 is north, 2 is south, 3 is east, 4 is west
-    path = []
-    current = start
-    print(current)
-    for i in range(len(solverPath)):
-        print(solverPath[i])
-        if solverPath[i] == 0:
-            break
-        elif solverPath[i] == 1:
-            nextMove = (current[0], current[1] - 1)
-            if nextMove[1] < 0 or nextMove[1] > len(maze.maze[0]):
-                pass
-            else:
-                current = nextMove
-        elif solverPath[i] == 2:
-            nextMove = (current[0], current[1] + 1)
-            if nextMove[1] < 0 or nextMove[1] > len(maze.maze[0]):
-                pass
-            else:
-                current = nextMove
-        elif solverPath[i] == 3:
-            nextMove = (current[0] + 1, current[1])
-            if nextMove[0] < 0 or nextMove[0] > len(maze.maze):
-                pass
-            else:
-                current = nextMove
-        elif solverPath[i] == 4:
-            nextMove = (current[0] - 1, current[1])
-            if nextMove[0] < 0 or nextMove[0] > len(maze.maze):
-                pass
-            else:
-                current = nextMove
-        path.append(current)
-    return path
+	def __init__(self, x, y, mazeCount, solverCount, initialLength, lengthenPeriod):
+		if x < 1 or x < 1:
+			raise ValueError("Maze of size " + str(self.size) + " is invalid")
+		else:
+			self.mazes = []
+			self.solvers = []
+			for i in range(mazeCount):
+				self.mazes.append(Maze(x, y))
+			for j in range(solverCount):
+				self.solvers.append(GeneticSolver(initialLength))
+			self.lengthenPeriod = lengthenPeriod
+			
 
 
-def evaluate(maze, solver, DFSPath):
-    # evaluate fitness of solver on maze and DFS
-    fitness = 0
-    for i in range(len(solverPath)):
-        if solverPath[i] == DFSPath[i]:
-            fitness += 1
-    return fitness
+	def tracePath(self, solverPath, maze, start):
+		# trace path of solver on maze
+		# 0 is stop, 1 is north, 2 is south, 3 is east, 4 is west
+		path = []
+		current = start
+		print(current)
+		for i in range(len(solverPath)):
+			print(solverPath[i])
+			if solverPath[i] == 0:
+				continue
+			elif solverPath[i] == 1:
+				nextMove = (current[0], current[1] - 1)
+				if nextMove[1] < 0 or nextMove[1] > len(maze.maze[0]):
+					pass
+				else:
+					current = nextMove
+			elif solverPath[i] == 2:
+				nextMove = (current[0], current[1] + 1)
+				if nextMove[1] < 0 or nextMove[1] > len(maze.maze[0]):
+					pass
+				else:
+					current = nextMove
+			elif solverPath[i] == 3:
+				nextMove = (current[0] + 1, current[1])
+				if nextMove[0] < 0 or nextMove[0] > len(maze.maze):
+					pass
+				else:
+					current = nextMove
+			elif solverPath[i] == 4:
+				nextMove = (current[0] - 1, current[1])
+				if nextMove[0] < 0 or nextMove[0] > len(maze.maze):
+					pass
+				else:
+					current = nextMove
+			path.append(current)
+		return path
+	
+	def evaluateMaze(self, solver, maze):
+		euc = lambda x1, x2, y1, y2: ((x1-x2)**2 + (y1-y2)**2)**0.5
+		path = self.tracePath(solver.asGeneticObject(), maze, maze.start)
+		onGoal = False
+		lastOnGoal = -1
+		for i in range(len(path)):
+			if path[i] == maze.end:
+				if lastOnGoal == -1:
+					lastOnGoal = i
+			else:
+				lastOnGoal = -1
+		total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
+		return (total_distance if total_distance != 0 else 1) / (lastOnGoal if lastOnGoal != -1 else 1)
 
 
 if __name__ == "__main__":
 
-    coevolveGen = 5
-    mazeGen = 100
-    mazePop = 100
-    mazeSize = 10
-    # generate maze
-    maze = Maze(mazeSize, mazeSize)
-    method = "genetic"
-    maze.initMaze(method, mazePop, mazeGen)
+	coevolveGen = 5
+	mazeGen = 100
+	mazePop = 100
+	mazeSize = 10
+	# generate maze
+	maze = Maze(mazeSize, mazeSize)
+	method = "genetic"
+	maze.initMaze(method, mazePop, mazeGen)
 
-    geneticMaze = maze.asGeneticObject()
+	geneticMaze = maze.asGeneticObject()
+	evolver = CoEvolver(10, 10, 100, 100, 25, 5)
 
-    # generate solver
-    solverLength = len(geneticMaze)
-    solver = GeneticSolver(solverLength)
-    solver.init()
-    geneticPath = solver.string
-    print(geneticPath)
-    # trace path of solver on maze
-    solverPath = tracePath(geneticPath, maze.start)
-    print(solverPath)
+	maze.display()
 
-    maze.display()
+	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)
+	# DFSPath.DFS()
+	# DFSPath = DFSPath.path
 
-    # DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)
-    # DFSPath.DFS()
-    # DFSPath = DFSPath.path
-
-    # for i in range(coevolveGen):
-    #     # evaluate fitness of solver on maze and DFS
-    #     fitness = evaluate(maze, solver, DFSPath)
+	# for i in range(coevolveGen):
+	#	  # evaluate fitness of solver on maze and DFS
+	#	  fitness = evaluate(maze, solver, DFSPath)
