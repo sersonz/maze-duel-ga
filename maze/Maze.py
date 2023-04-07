@@ -23,8 +23,8 @@ class Maze:
 		if x < 1 or x < 1:
 			raise ValueError("Maze of size " + str(self.size) + " is invalid")
 		else:
-			self.x = 2*x + 1
-			self.y = 2*y + 1
+			self.x = (2*x + 1 if maze==None else x)
+			self.y = (2*y + 1 if maze==None else y)
 			self.maze = ([[1 for i in range(self.x)] for j in range(self.y)]) if maze == None else maze
 			self.initialized = False
 			self.valid = False
@@ -143,14 +143,14 @@ class Maze:
 		offspring1 = ([[0 for i in range(self.x)] for j in range(self.y)])
 		offspring2 = ([[0 for i in range(self.x)] for j in range(self.y)])
 
-		for i in range(self.x):
-			for j in range(self.y):
+		for x in range(self.x):
+			for y in range(self.y):
 				if random.random() < 0.5:  # 50% chance of selecting from parent1
-					offspring1[i][j] = self.maze[i][j]
-					offspring2[i][j] = parent2.maze[i][j]
+					offspring1[x][y] = self.maze[x][y]
+					offspring2[x][y] = parent2.maze[x][y]
 				else:  # 50% chance of selecting from parent2
-					offspring1[i][j] = parent2.maze[i][j]
-					offspring2[i][j] = self.maze[i][j]
+					offspring1[x][y] = parent2.maze[x][y]
+					offspring2[x][y] = self.maze[x][y]
 
 		return Maze(self.x, self.y, offspring1, self.start, self.end), Maze(self.x, self.y, offspring2, self.start, self.end)
 
@@ -160,20 +160,21 @@ class Maze:
 		# Put the entire maze into a long string and swap an empty tile with a wall
 
 		# Choose a random wall and random empty tile, below are the x and y coordinates
-		empties = list(zip(*np.where(np.asarray(self.maze) == 0)))
-		tiles = list(zip(*np.where(np.asarray(self.maze) == 1)))
-		
-		empty = random.choice(empties)
-		tile = random.choice(tiles)
-		
-
-		# Create a temporary copy and swap the two values
-		temp = [row[:] for row in self.maze]
-
-		temp[empty[0]][empty[1]] = 1
-		temp[tile[0]][tile[1]] = 0
-
-		# Check if maze is still solvable
+		for i in range(60):
+			empties = list(zip(*np.where(np.asarray(self.maze) == 0)))
+			tiles = list(zip(*np.where(np.asarray(self.maze) == 1)))
+			
+			empty = random.choice(empties)
+			tile = random.choice(tiles)
+			
+	
+			# Create a temporary copy and swap the two values
+			temp = [row[:] for row in self.maze]
+	
+			temp[empty[0]][empty[1]] = 1
+			temp[tile[0]][tile[1]] = 0
+	
+			# Check if maze is still solvable
 		solver = Solver(temp, self.x, self.y, self.start, self.end)
 		path = solver.DFS()
 		if path:

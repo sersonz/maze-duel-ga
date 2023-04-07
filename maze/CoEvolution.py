@@ -66,38 +66,35 @@ class CoEvolver:
 	
 	def evaluateMaze(self, maze):
 		euc = lambda x1, x2, y1, y2: ((x1-x2)**2 + (y1-y2)**2)**0.5
-		initial_distance = euc(maze.start[0], maze.end[0], maze.start[1], maze.end[1])
 		total_fitness = 0
 		for solver in self.solvers:
-			
+			atEnd = False
 			path = self.tracePath(solver.asGeneticObject(), maze, maze.start)
-			lastOnGoal = -1
 			for i in range(len(path)):
 				if path[i] == maze.end:
-					if lastOnGoal == -1:
-						lastOnGoal = i
-				else:
-					lastOnGoal = -1
-			total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
-			total_fitness += (lastOnGoal if lastOnGoal != -1 else len(path)) / (2 - ((initial_distance - total_distance) / initial_distance))
+					atEnd = True
+					total_fitness += i
+					break
+			if not atEnd:	
+				total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
+				total_fitness += len(path) * (1 + 1/total_distance)
 		return total_fitness / len(self.solvers)
 		
 	def evaluateSolver(self, solver):
-		euc = lambda x1, x2, y1, y2: ((x1-x2)**2 + (y1-y2)**2)**0.5
+		euc = lambda x1, x2, y1, y2: ((x2-x1)**2 + (y2-y1)**2)**0.5
 		total_fitness = 0
 		for maze in self.mazes:
+			atEnd = False
 			path = self.tracePath(solver.asGeneticObject(), maze, maze.start)
-			lastOnGoal = -1
 			for i in range(len(path)):
 				if path[i] == maze.end:
-					if lastOnGoal == -1:
-						lastOnGoal = i
-				else:
-					lastOnGoal = -1
-			total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
-			initial_distance = euc(maze.start[0], maze.end[0], maze.start[1], maze.end[1])
-			total_fitness += (1 / lastOnGoal if lastOnGoal != -1 else (1 / len(path) * (2 - ((initial_distance - total_distance) / initial_distance))))
-		return total_fitness / len(self.mazes)
+					atEnd = True
+					total_fitness += (1 / i)
+					break
+			if not atEnd:
+				total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
+				total_fitness += total_distance / len(path)
+		return (total_fitness / len(self.mazes)) * solver.radiation
 		
 	def survivorSelection(self, algorithm="mg"):
 		match algorithm:
@@ -117,7 +114,7 @@ class CoEvolver:
 				solvers = []
 				for solver in self.solvers:
 					solvers.append((solver, self.evaluateSolver(solver)))
-				fitness = sorted(solvers, key=lambda x: x[1], reverse=True)
+				fitness = sorted(solvers, key=lambda x: x[1])
 				self.solvers = [x[0] for x in fitness][:self.solverCount]				
 				
 	def parentSelection(self, algorithm="mg"):
@@ -130,7 +127,7 @@ class CoEvolver:
 				parent2 = random.choice(self.solvers)
 		return parent1, parent2
 		
-	def step(self, mgRatchet=1, msRatchet=5):
+	def step(self, mgRatchet=5, msRatchet=5):
 		for i in range(mgRatchet):
 			mgParent1, mgParent2 = self.parentSelection(algorithm="mg")
 			mgChild1, mgChild2 = mgParent1.crossover(mgParent2)
@@ -156,17 +153,28 @@ class CoEvolver:
 				solver.lengthen(1)
 		# Show current figures
 		fitness_mg = 0
+		fitnesses_mg = []
+		fitnesses_ms = []
 		fitness_ms = 0
 		for maze in self.mazes:
-			fitness_mg += self.evaluateMaze(maze)
+			fitness = self.evaluateMaze(maze)
+			fitness_mg += fitness
+			fitnesses_mg.append(fitness)
 		for solver in self.solvers:
-			fitness_ms += self.evaluateSolver(solver)
-		print("Generation " + str(self.currentGen) + ": " + str(fitness_mg) + "/" + str(fitness_ms))
+			fitness = self.evaluateSolver(solver)
+			fitness_ms += fitness
+			fitnesses_ms.append(fitness)
+		print("Generation " + str(self.currentGen) + ": " + str(fitness_mg / len(self.mazes)) + "/" + str(fitness_ms / len(self.solvers)))
+		print(fitnesses_ms)
 		self.currentGen += 1
 		
 	def showAllMazes(self):
 		for maze in self.mazes:
 			maze.display()
+			
+	def stepMulti(self, steps=1):
+		for i in range(steps):
+			self.step()
 		
 		
 
@@ -177,7 +185,7 @@ if __name__ == "__main__":
 	mazePop = 100
 	mazeSize = 10
 	# generate maze
-	evolver = CoEvolver(10, 10, 10, 10, 100, 5)
+	evolver = CoEvolver(10, 10, 5, 25, 10, 10)
 
 	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)
 	# DFSPath.DFS()
