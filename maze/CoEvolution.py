@@ -10,7 +10,7 @@ from GeneticSolver import GeneticSolver
 class CoEvolver:
 
 	def __init__(self, x, y, mazeCount, solverCount, initialLength, lengthenPeriod):
-		if x < 1 or x < 1:
+		if x < 1 or y < 1:
 			raise ValueError("Maze of size " + str(self.size) + " is invalid")
 		else:
 			self.mazes = []
@@ -39,25 +39,25 @@ class CoEvolver:
 				continue
 			elif solverPath[i] == 1:
 				nextMove = (current[0], current[1] - 1)
-				if nextMove[1] < 0 or nextMove[1] > len(maze.maze[0]):
+				if nextMove[1] < 0 or nextMove[1] >= len(maze.maze[0]):
 					pass
 				else:
 					current = nextMove
 			elif solverPath[i] == 2:
 				nextMove = (current[0], current[1] + 1)
-				if nextMove[1] < 0 or nextMove[1] > len(maze.maze[0]):
+				if nextMove[1] < 0 or nextMove[1] >= len(maze.maze[0]):
 					pass
 				else:
 					current = nextMove
 			elif solverPath[i] == 3:
 				nextMove = (current[0] + 1, current[1])
-				if nextMove[0] < 0 or nextMove[0] > len(maze.maze):
+				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze):
 					pass
 				else:
 					current = nextMove
 			elif solverPath[i] == 4:
 				nextMove = (current[0] - 1, current[1])
-				if nextMove[0] < 0 or nextMove[0] > len(maze.maze):
+				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze):
 					pass
 				else:
 					current = nextMove

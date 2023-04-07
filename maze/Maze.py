@@ -1,3 +1,4 @@
+import math
 import turtle
 import types
 import itertools
@@ -46,9 +47,22 @@ class Maze:
 		potentialPoints = [(0, i) for i in range(self.y)] + [(self.x - 1, i) for i in range(self.y)] \
 			+ [(i, 0) for i in range(self.x)] + [(i, self.y - 1)
 												 for i in range(self.x)]
-		self.start = random.choice(potentialPoints)
+		# self.start = random.choice(potentialPoints)
+		# potentialPoints.remove(self.start)
+		# self.end = random.choice(potentialPoints)
+
+		maxDist = 0
+		for i in range(len(potentialPoints)):
+			for j in range(len(potentialPoints)):
+				dist = math.sqrt((potentialPoints[i][0] - potentialPoints[j][0])**2 + (
+					potentialPoints[i][1] - potentialPoints[j][1])**2)
+				if dist > maxDist:
+					maxDist = dist
+					self.start = potentialPoints[i]
+					self.end = potentialPoints[j]
+		
 		potentialPoints.remove(self.start)
-		self.end = random.choice(potentialPoints)
+		potentialPoints.remove(self.end)
 		# re-generate start and end points if they are on a wall
 
 		# For some reason, we have to pass the parameter in manually
