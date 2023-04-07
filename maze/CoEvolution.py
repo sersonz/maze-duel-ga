@@ -81,6 +81,23 @@ class CoEvolver:
 			total_fitness += (lastToGoal if lastToGoal != -1 else len(path)) / (2 - (total_distance / initial_distance))
 		return total_fitness / len(self.solvers)
 		
+	def evaluateSolver(self, solver):
+		euc = lambda x1, x2, y1, y2: ((x1-x2)**2 + (y1-y2)**2)**0.5
+		total_fitness = 0
+		for maze in self.mazes:
+			path = self.tracePath(solver.asGeneticObject(), maze, maze.start)
+			lastOnGoal = -1
+			for i in range(len(path)):
+				if path[i] == maze.end:
+					if lastOnGoal == -1:
+						lastOnGoal = i
+				else:
+					lastOnGoal = -1
+			total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
+			initial_distance = euc(maze.start[0], maze.end[0], maze.start[1], maze.end[1])
+			total_fitness += (1 / lastToGoal if lastToGoal != -1 else (1 / len(path) * ((initial_distance - total_distance) / initial_distance))
+		return total_fitness / len(self.mazes)
+		
 	def survivorSelection(self, algorithm="mg"):
 		match algorithm:
 			case "mg":
