@@ -50,6 +50,9 @@ class GeneticSolver:
 			self.string += str(random.randrange(0, 5))
 		self.length = newLength
 		
+	def asGeneticObject(self):
+		return self.string
+		
 			
 if __name__=="__main__":
 	test = GeneticSolver(15)
