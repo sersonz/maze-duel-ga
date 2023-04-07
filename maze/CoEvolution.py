@@ -122,6 +122,15 @@ class CoEvolver:
 			case "mg":
 				parent1 = random.choice(self.mazes)
 				parent2 = random.choice(self.mazes)
+				# tournament selection
+				q = 10
+				for _ in range(q):
+					maze = random.choice(self.mazes)
+					if self.evaluateMaze(maze) > self.evaluateMaze(parent1):
+						parent1 = maze
+					if self.evaluateMaze(maze) > self.evaluateMaze(parent2):
+						parent2 = maze
+
 			case "ms":
 				parent1 = random.choice(self.solvers)
 				parent2 = random.choice(self.solvers)
@@ -186,6 +195,8 @@ if __name__ == "__main__":
 	mazeSize = 10
 	# generate maze
 	evolver = CoEvolver(10, 10, 5, 25, 10, 10)
+	evolver.stepMulti(100)
+	evolver.showAllMazes()
 
 	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)
 	# DFSPath.DFS()
