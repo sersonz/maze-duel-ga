@@ -39,8 +39,6 @@ class GeneticSolver:
 			mutationLength += 1
 		string1 = list(self.string)
 		string2 = list(parent2.string)
-		print(string1[point1:point1+mutationLength])
-		print(string2[point2:point2+mutationLength])
 		string1[point1:point1+mutationLength], string2[point2:point2+mutationLength] = \
 			string2[point2:point2+mutationLength], string1[point1:point1+mutationLength]
 		return GeneticSolver(self.length, "".join(string1)), GeneticSolver(self.length, "".join(string2))

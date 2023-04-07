@@ -65,10 +65,8 @@ class CoEvolver:
 		return path
 	
 	def evaluateMaze(self, maze):
-		maze.display()
 		euc = lambda x1, x2, y1, y2: ((x1-x2)**2 + (y1-y2)**2)**0.5
 		initial_distance = euc(maze.start[0], maze.end[0], maze.start[1], maze.end[1])
-		print("Initial distance: " + str(initial_distance))
 		total_fitness = 0
 		for solver in self.solvers:
 			
@@ -81,8 +79,6 @@ class CoEvolver:
 				else:
 					lastOnGoal = -1
 			total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
-			print("Initial distance: " + str(initial_distance))
-			print("Total distance: " + str(total_distance))
 			total_fitness += (lastOnGoal if lastOnGoal != -1 else len(path)) / (2 - ((initial_distance - total_distance) / initial_distance))
 		return total_fitness / len(self.solvers)
 		
@@ -100,7 +96,7 @@ class CoEvolver:
 					lastOnGoal = -1
 			total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
 			initial_distance = euc(maze.start[0], maze.end[0], maze.start[1], maze.end[1])
-			total_fitness += (1 / lastOnGoal if lastOnGoal != -1 else (1 / len(path) * ((initial_distance - total_distance) / initial_distance)))
+			total_fitness += (1 / lastOnGoal if lastOnGoal != -1 else (1 / len(path) * (2 - ((initial_distance - total_distance) / initial_distance))))
 		return total_fitness / len(self.mazes)
 		
 	def survivorSelection(self, algorithm="mg"):
@@ -136,19 +132,14 @@ class CoEvolver:
 		
 	def step(self, mgRatchet=1, msRatchet=5):
 		for i in range(mgRatchet):
-			print("Started mgRatchet")
 			mgParent1, mgParent2 = self.parentSelection(algorithm="mg")
-			print("Finished computing mg fitness")
 			mgChild1, mgChild2 = mgParent1.crossover(mgParent2)
-			print("Finished mg crossover")
 			mgChild1 = mgChild1.mutate()
 			mgChild2 = mgChild2.mutate()
-			print("Finished mg mutation")
 			for child in [mgChild1, mgChild2]:
 				if child != None:
 					self.mazes.append(child)
 		for i in range(msRatchet):
-			print("Started msRatchet")
 			msParent1, msParent2 = self.parentSelection(algorithm="ms")
 			msChild1, msChild2 = msParent1.crossover(msParent2)
 			msChild1 = msChild1.mutate()
@@ -162,7 +153,21 @@ class CoEvolver:
 		# Step 6: If we are at the lengthen period, lengthen all current solvers
 		if self.currentGen % self.lengthenPeriod == 0:
 			for solver in self.solvers:
-				solver.lengthen()
+				solver.lengthen(1)
+		# Show current figures
+		fitness_mg = 0
+		fitness_ms = 0
+		for maze in self.mazes:
+			fitness_mg += self.evaluateMaze(maze)
+		for solver in self.solvers:
+			fitness_ms += self.evaluateSolver(solver)
+		print("Generation " + str(self.currentGen) + ": " + str(fitness_mg) + "/" + str(fitness_ms))
+		self.currentGen += 1
+		
+	def showAllMazes(self):
+		for maze in self.mazes:
+			maze.display()
+		
 		
 
 if __name__ == "__main__":
@@ -172,7 +177,7 @@ if __name__ == "__main__":
 	mazePop = 100
 	mazeSize = 10
 	# generate maze
-	evolver = CoEvolver(10, 10, 100, 100, 25, 5)
+	evolver = CoEvolver(10, 10, 10, 10, 100, 5)
 
 	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)
 	# DFSPath.DFS()

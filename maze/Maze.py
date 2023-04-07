@@ -162,7 +162,6 @@ class Maze:
 		# Choose a random wall and random empty tile, below are the x and y coordinates
 		empties = list(zip(*np.where(np.asarray(self.maze) == 0)))
 		tiles = list(zip(*np.where(np.asarray(self.maze) == 1)))
-		print("Maze: " + str(self.maze))
 		
 		empty = random.choice(empties)
 		tile = random.choice(tiles)
@@ -178,7 +177,7 @@ class Maze:
 		solver = Solver(temp, self.x, self.y, self.start, self.end)
 		path = solver.DFS()
 		if path:
-			return Maze(self.x, self.y, temp)
+			return Maze(self.x, self.y, temp, self.start, self.end)
 		else:
 			return None
 
