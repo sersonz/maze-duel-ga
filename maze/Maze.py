@@ -47,6 +47,7 @@ class Maze:
 			+ [(i, 0) for i in range(self.x)] + [(i, self.y - 1)
 												 for i in range(self.x)]
 		self.start = random.choice(potentialPoints)
+		potentialPoints.remove(self.start)
 		self.end = random.choice(potentialPoints)
 		# re-generate start and end points if they are on a wall
 
