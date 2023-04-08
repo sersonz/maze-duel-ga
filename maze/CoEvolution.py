@@ -1,8 +1,9 @@
-import math
 from Maze import Maze
+import math
 import os
 import sys
 import random
+
 current = os.path.dirname(os.path.realpath(__file__))
 parent_directory = os.path.dirname(current)
 sys.path.append(parent_directory + "/solver")
@@ -29,7 +30,6 @@ class CoEvolver:
 			self.mazeCount = mazeCount
 			self.solverCount = solverCount
 			self.currentGen = 1
-
 
 	def tracePath(self, solverPath, maze, start):
 		# trace path of solver on maze
@@ -186,10 +186,13 @@ class CoEvolver:
 			for solver in self.solvers:
 				solver = solver.asGeneticObject()
 				# path = self.getPath(solver, maze.start)
-				path = self.tracePath(solver, maze, maze.start)
-				if path != []:
-					maze.display(path)
-			
+				geneticPath = self.tracePath(solver, maze, maze.start)
+				solverDFS = Solver(maze.maze, maze.x, maze.y, maze.start, maze.end)
+				solverDFS.DFS()
+				DFSPath = solverDFS.finalPath
+				if geneticPath != []:
+					maze.display(DFSPath, geneticPath)
+
 	def stepMulti(self, steps=1):
 		for i in range(steps):
 			self.step()
@@ -204,7 +207,7 @@ if __name__ == "__main__":
 	mazeSize = 10
 	# generate maze
 	evolver = CoEvolver(10, 10, 5, 25, 10, 10)
-	evolver.stepMulti(100)
+	evolver.stepMulti(10)
 	evolver.showAllMazes()
 
 	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)

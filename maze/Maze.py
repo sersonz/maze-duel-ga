@@ -247,18 +247,41 @@ class Maze:
 				string = string + str(self.maze[i][j])
 		return string
 
-    def display(self, path=None):
-        # print(self.maze)
-        # print(self.start)
-        # print(self.end)
-        if path:
-            for node in path:
-                plt.plot(node[1], node[0], 'bo', markersize=10)
-        plt.imshow(self.maze, cmap=plt.cm.binary)
-        plt.plot(self.start[1], self.start[0], 'go')
-        plt.plot(self.end[1], self.end[0], 'ro')
-        plt.title('Maze', size=12)
-        plt.show()
+	def display(self, DFSPath=None, geneticPath=None):
+		# print(self.maze)
+		# print(self.start)
+		# print(self.end)
+		if geneticPath:
+			fig, ax = plt.subplots(1, 2)
+			ax[0].imshow(self.maze, cmap=plt.cm.binary)
+			ax[0].plot(self.start[1], self.start[0], 'go')
+			ax[0].plot(self.end[1], self.end[0], 'ro')
+			ax[0].set_title('DFS Path', size=12)
+
+			ax[1].imshow(self.maze, cmap=plt.cm.binary)
+			ax[1].plot(self.start[1], self.start[0], 'go')
+			ax[1].plot(self.end[1], self.end[0], 'ro')
+			ax[1].set_title('GA Path', size=12)
+
+			# show path on first plot
+			for node in DFSPath:
+				ax[0].plot(node[1], node[0], 'bo', markersize=10)
+			# show path on second plot
+			for node in geneticPath:
+				ax[1].plot(node[1], node[0], 'bo', markersize=10)
+			plt.show()
+		else:
+			plt.imshow(self.maze, cmap=plt.cm.binary)
+			plt.plot(self.start[1], self.start[0], 'go')
+			plt.plot(self.end[1], self.end[0], 'ro')
+			plt.title('Maze', size=12)
+			plt.show()
+			# plt.plot(node[1], node[0], 'bo', markersize=10)
+		# plt.imshow(self.maze, cmap=plt.cm.binary)
+		# plt.plot(self.start[1], self.start[0], 'go')
+		# plt.plot(self.end[1], self.end[0], 'ro')
+		# plt.title('Maze', size=12)
+		# plt.show()
 
 
 if __name__ == "__main__":
