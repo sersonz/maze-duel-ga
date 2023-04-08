@@ -247,25 +247,28 @@ class Maze:
 				string = string + str(self.maze[i][j])
 		return string
 
-	def display(self):
-		# print(self.maze)
-		# print(self.start)
-		# print(self.end)
-		plt.imshow(self.maze, cmap=plt.cm.binary)
-		plt.plot(self.start[1], self.start[0], 'go')
-		plt.plot(self.end[1], self.end[0], 'ro')
-		plt.title('Maze', size=12)
-		plt.show()
+    def display(self, path=None):
+        # print(self.maze)
+        # print(self.start)
+        # print(self.end)
+        if path:
+            for node in path:
+                plt.plot(node[1], node[0], 'bo', markersize=10)
+        plt.imshow(self.maze, cmap=plt.cm.binary)
+        plt.plot(self.start[1], self.start[0], 'go')
+        plt.plot(self.end[1], self.end[0], 'ro')
+        plt.title('Maze', size=12)
+        plt.show()
 
 
 if __name__ == "__main__":
-	method = "genetic"
-	population = 100
-	generations = 100
-	maze = Maze(10, 10)
-	maze.initMaze(method, population, generations)
-	maze.display()
-	# maze.mutation()
-	# maze.display()
-	# print(maze.start)
-	# print(type(maze.asGeneticObject()))
+    method = "genetic"
+    population = 100
+    generations = 100
+    maze = Maze(10, 10)
+    maze.initMaze(method, population, generations)
+    maze.display()
+    # maze.mutation()
+    # maze.display()
+    # print(maze.start)
+    # print(type(maze.asGeneticObject()))

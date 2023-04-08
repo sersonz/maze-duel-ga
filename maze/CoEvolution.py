@@ -1,3 +1,4 @@
+import math
 from Maze import Maze
 import os
 import sys
@@ -6,6 +7,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent_directory = os.path.dirname(current)
 sys.path.append(parent_directory + "/solver")
 from GeneticSolver import GeneticSolver
+
 
 class CoEvolver:
 
@@ -35,27 +37,28 @@ class CoEvolver:
 		path = []
 		current = start
 		for i in range(len(solverPath)):
-			if solverPath[i] == 0:
+			direction = int(solverPath[i])
+			if direction == 0:
 				continue
-			elif solverPath[i] == 1:
+			elif direction == 1:
 				nextMove = (current[0], current[1] - 1)
 				if nextMove[1] < 0 or nextMove[1] >= len(maze.maze[0]):
 					pass
 				else:
 					current = nextMove
-			elif solverPath[i] == 2:
+			elif direction == 2:
 				nextMove = (current[0], current[1] + 1)
 				if nextMove[1] < 0 or nextMove[1] >= len(maze.maze[0]):
 					pass
 				else:
 					current = nextMove
-			elif solverPath[i] == 3:
+			elif direction == 3:
 				nextMove = (current[0] + 1, current[1])
 				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze):
 					pass
 				else:
 					current = nextMove
-			elif solverPath[i] == 4:
+			elif direction== 4:
 				nextMove = (current[0] - 1, current[1])
 				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze):
 					pass
@@ -65,7 +68,7 @@ class CoEvolver:
 		return path
 	
 	def evaluateMaze(self, maze):
-		euc = lambda x1, x2, y1, y2: ((x1-x2)**2 + (y1-y2)**2)**0.5
+		euc = lambda x1, x2, y1, y2: math.sqrt(((x1-x2)**2 + (y1-y2)**2)**0.5)
 		total_fitness = 0
 		for solver in self.solvers:
 			atEnd = False
@@ -81,7 +84,7 @@ class CoEvolver:
 		return total_fitness / len(self.solvers)
 		
 	def evaluateSolver(self, solver):
-		euc = lambda x1, x2, y1, y2: ((x2-x1)**2 + (y2-y1)**2)**0.5
+		euc = lambda x1, x2, y1, y2: math.sqrt(((x2-x1)**2 + (y2-y1)**2)**0.5)
 		total_fitness = 0
 		for maze in self.mazes:
 			atEnd = False
@@ -178,8 +181,14 @@ class CoEvolver:
 		self.currentGen += 1
 		
 	def showAllMazes(self):
+		
 		for maze in self.mazes:
-			maze.display()
+			for solver in self.solvers:
+				solver = solver.asGeneticObject()
+				# path = self.getPath(solver, maze.start)
+				path = self.tracePath(solver, maze, maze.start)
+				if path != []:
+					maze.display(path)
 			
 	def stepMulti(self, steps=1):
 		for i in range(steps):
