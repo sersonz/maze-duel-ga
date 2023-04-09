@@ -1,4 +1,5 @@
 from Maze import Maze
+from Solver import Solver
 import math
 import os
 import sys
@@ -9,27 +10,29 @@ parent_directory = os.path.dirname(current)
 sys.path.append(parent_directory + "/solver")
 from GeneticSolver import GeneticSolver
 
-
 class CoEvolver:
 
-	def __init__(self, x, y, mazeCount, solverCount, initialLength, lengthenPeriod):
-		if x < 1 or y < 1:
-			raise ValueError("Maze of size " + str(self.size) + " is invalid")
-		else:
-			self.mazes = []
-			self.solvers = []
-			for i in range(mazeCount):
-				maze = Maze(x, y)
-				maze.initMaze(method="depth")
-				self.mazes.append(maze)
-			for j in range(solverCount):
-				solver = GeneticSolver(initialLength)
-				solver.init()
-				self.solvers.append(solver)
-			self.lengthenPeriod = lengthenPeriod
-			self.mazeCount = mazeCount
-			self.solverCount = solverCount
-			self.currentGen = 1
+    def __init__(self, x, y, mazeCount, solverCount, initialLength, lengthenPeriod):
+        if x < 1 or y < 1:
+            raise ValueError("Maze of size " + str(self.size) + " is invalid")
+        else:
+            self.mazes = []
+            self.solvers = []
+            for i in range(mazeCount):
+                maze = Maze(x, y)
+                maze.initMaze(method="depth")
+                self.mazes.append(maze)
+            for j in range(solverCount):
+                # set initial length of solver to be euclidean distance between start and end
+                initialLength = int(math.sqrt((self.mazes[0].start[0] - self.mazes[0].end[0])**2 + (
+                self.mazes[0].start[1] - self.mazes[0].end[1])**2))
+                solver = GeneticSolver(initialLength)
+                solver.init()
+                self.solvers.append(solver)
+            self.lengthenPeriod = lengthenPeriod
+            self.mazeCount = mazeCount
+            self.solverCount = solverCount
+            self.currentGen = 1
 
 	def tracePath(self, solverPath, maze, start):
 		# trace path of solver on maze
