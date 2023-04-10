@@ -2,6 +2,7 @@ from Maze import Maze
 import os
 import sys
 import random
+import math
 current = os.path.dirname(os.path.realpath(__file__))
 parent_directory = os.path.dirname(current)
 sys.path.append(parent_directory + "/solver")
@@ -21,6 +22,9 @@ class CoEvolver:
 				maze.initMaze(method="depth")
 				self.mazes.append(maze)
 			for j in range(solverCount):
+				# set initial length of solver to be euclidean distance between start and end
+				initialLength = int(math.sqrt((self.mazes[0].start[0] - self.mazes[0].end[0])**2 + (
+				self.mazes[0].start[1] - self.mazes[0].end[1])**2))
 				solver = GeneticSolver(initialLength)
 				solver.init()
 				self.solvers.append(solver)
