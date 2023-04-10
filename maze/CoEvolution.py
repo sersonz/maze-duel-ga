@@ -78,7 +78,7 @@ class CoEvolver:
 			if not atEnd:	
 				total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
 				total_fitness += len(path) * (1 + 1/total_distance)
-		return total_fitness / len(self.solvers)
+		return (total_fitness / len(self.solvers)) * maze.radiation
 		
 	def evaluateSolver(self, solver):
 		euc = lambda x1, x2, y1, y2: ((x2-x1)**2 + (y2-y1)**2)**0.5
@@ -129,28 +129,31 @@ class CoEvolver:
 					fitnesses = sorted(fitnesses, key=lambda x: x[1], reverse=True)
 					result.append(fitnesses[0][0])
 			case "ms":
-				parent1 = random.choice(self.solvers)
-				parent2 = random.choice(self.solvers)
-				result = [parent1, parent2]
+				result = []
+				mating_pool_size = len(self.solvers)
+				tournament_size = 10
+				for i in range(mating_pool_size):
+					members = random.sample(self.solvers, tournament_size)
+					fitnesses = [(x, self.evaluateSolver(x)) for x in members]
+					fitnesses = sorted(fitnesses, key=lambda x: x[1], reverse=True)
+					result.append(fitnesses[0][0])
 		return result
 		
-	def step(self, mgRatchet=5, msRatchet=5):
-		for i in range(mgRatchet):
-			parents = self.parentSelection(algorithm="mg")
-			for j in range(len(parents) - 1):
-				mgChild1, mgChild2 = parents[j].crossover(parents[j+1])
-				mgChild1 = mgChild1.mutate()
-				mgChild2 = mgChild2.mutate()
-				for child in [mgChild1, mgChild2]:
-					if child != None:
-						self.mazes.append(child)
-		for i in range(msRatchet):
-			msParent1, msParent2 = self.parentSelection(algorithm="ms")
-			msChild1, msChild2 = msParent1.crossover(msParent2)
-			msChild1 = msChild1.mutate()
-			msChild2 = msChild2.mutate()
-			# Step 4: Add to population
-			for child in [msChild1, msChild2]:
+	def step(self):
+		parents = self.parentSelection(algorithm="mg")
+		for j in range(len(parents) - 1):
+			mgChild1, mgChild2 = parents[j].crossover(parents[j+1])
+			mgChild1 = mgChild1.mutate()
+			mgChild2 = mgChild2.mutate()
+			for child in [mgChild1, mgChild2]:
+				if child != None:
+					self.mazes.append(child)
+		parents = self.parentSelection(algorithm="ms")
+		for j in range(len(parents) - 1):
+			mgChild1, mgChild2 = parents[j].crossover(parents[j+1])
+			mgChild1 = mgChild1.mutate()
+			mgChild2 = mgChild2.mutate()
+			for child in [mgChild1, mgChild2]:
 				if child != None:
 					self.solvers.append(child)
 		self.survivorSelection(algorithm="mg")

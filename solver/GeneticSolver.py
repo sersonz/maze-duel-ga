@@ -13,7 +13,7 @@ class GeneticSolver:
 		self.fitness = 0
 		# To prevent ties, we assign a small
 		# fitness modifier to each solver
-		self.radiation = random.uniform(0.99, 1.01)
+		self.radiation = random.uniform(0.999, 1.001)
 	
 	def init(self):
 		if self.string != "":
@@ -39,7 +39,7 @@ class GeneticSolver:
 		
 	def crossover(self, parent2):
 		mutationLength = 1
-		while(random.randrange(0, 2) == 1):
+		while(random.randrange(0, 3) == 1 and mutationLength < len(self.string)):
 			mutationLength += 1
 		point1 = random.randrange(0, len(self.string) - mutationLength)
 		point2 = random.randrange(0, len(parent2.string) - mutationLength)

@@ -33,6 +33,9 @@ class Maze:
 			self.end = end
 			self.popSize = None
 			self.genLimit = None
+            # To prevent ties, we assign
+            # a random fitness modifier to each maze
+			self.radiation = random.uniform(0.999, 1.001)           
 
 	def initMaze(self, method="depth", popSize=None, genLimit=None, maze=None):
 		'''
