@@ -120,31 +120,30 @@ class CoEvolver:
 	def parentSelection(self, algorithm="mg"):
 		match algorithm:
 			case "mg":
-				parent1 = random.choice(self.mazes)
-				parent2 = random.choice(self.mazes)
-				# tournament selection
-				q = 10
-				for _ in range(q):
-					maze = random.choice(self.mazes)
-					if self.evaluateMaze(maze) > self.evaluateMaze(parent1):
-						parent1 = maze
-					if self.evaluateMaze(maze) > self.evaluateMaze(parent2):
-						parent2 = maze
-
+				result = []
+				mating_pool_size = len(self.mazes)
+				tournament_size = 10
+				for i in range(mating_pool_size):
+					members = random.sample(self.mazes, tournament_size)
+					fitnesses = [(x, self.evaluateMaze(x)) for x in members]
+					fitnesses = sorted(fitnesses, key=lambda x: x[1], reverse=True)
+					result.append(fitnesses[0][0])
 			case "ms":
 				parent1 = random.choice(self.solvers)
 				parent2 = random.choice(self.solvers)
-		return parent1, parent2
+				result = [parent1, parent2]
+		return result
 		
 	def step(self, mgRatchet=5, msRatchet=5):
 		for i in range(mgRatchet):
-			mgParent1, mgParent2 = self.parentSelection(algorithm="mg")
-			mgChild1, mgChild2 = mgParent1.crossover(mgParent2)
-			mgChild1 = mgChild1.mutate()
-			mgChild2 = mgChild2.mutate()
-			for child in [mgChild1, mgChild2]:
-				if child != None:
-					self.mazes.append(child)
+			parents = self.parentSelection(algorithm="mg")
+			for j in range(len(parents) - 1):
+				mgChild1, mgChild2 = parents[j].crossover(parents[j+1])
+				mgChild1 = mgChild1.mutate()
+				mgChild2 = mgChild2.mutate()
+				for child in [mgChild1, mgChild2]:
+					if child != None:
+						self.mazes.append(child)
 		for i in range(msRatchet):
 			msParent1, msParent2 = self.parentSelection(algorithm="ms")
 			msChild1, msChild2 = msParent1.crossover(msParent2)
@@ -174,7 +173,6 @@ class CoEvolver:
 			fitness_ms += fitness
 			fitnesses_ms.append(fitness)
 		print("Generation " + str(self.currentGen) + ": " + str(fitness_mg / len(self.mazes)) + "/" + str(fitness_ms / len(self.solvers)))
-		print(fitnesses_ms)
 		self.currentGen += 1
 		
 	def showAllMazes(self):
@@ -194,7 +192,7 @@ if __name__ == "__main__":
 	mazePop = 100
 	mazeSize = 10
 	# generate maze
-	evolver = CoEvolver(10, 10, 5, 25, 10, 10)
+	evolver = CoEvolver(10, 10, 25, 25, 10, 10)
 	evolver.stepMulti(100)
 	evolver.showAllMazes()
 
