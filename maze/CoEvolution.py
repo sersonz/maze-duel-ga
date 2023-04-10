@@ -6,6 +6,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent_directory = os.path.dirname(current)
 sys.path.append(parent_directory + "/solver")
 from GeneticSolver import GeneticSolver
+from Solver import Solver
 
 class CoEvolver:
 
@@ -35,27 +36,28 @@ class CoEvolver:
 		path = []
 		current = start
 		for i in range(len(solverPath)):
-			if solverPath[i] == 0:
+			direction = int(solverPath[i])
+			if direction == 0:
 				continue
-			elif solverPath[i] == 1:
+			elif direction == 1:
 				nextMove = (current[0], current[1] - 1)
 				if nextMove[1] < 0 or nextMove[1] >= len(maze.maze[0]):
 					pass
 				else:
 					current = nextMove
-			elif solverPath[i] == 2:
+			elif direction == 2:
 				nextMove = (current[0], current[1] + 1)
 				if nextMove[1] < 0 or nextMove[1] >= len(maze.maze[0]):
 					pass
 				else:
 					current = nextMove
-			elif solverPath[i] == 3:
+			elif direction == 3:
 				nextMove = (current[0] + 1, current[1])
 				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze):
 					pass
 				else:
 					current = nextMove
-			elif solverPath[i] == 4:
+			elif direction == 4:
 				nextMove = (current[0] - 1, current[1])
 				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze):
 					pass
@@ -179,8 +181,18 @@ class CoEvolver:
 		self.currentGen += 1
 		
 	def showAllMazes(self):
+		# for maze in self.mazes:
+			# maze.display()
 		for maze in self.mazes:
-			maze.display()
+			for solver in self.solvers:
+				solver = solver.asGeneticObject()
+				# path = self.getPath(solver, maze.start)
+				geneticPath = self.tracePath(solver, maze, maze.start)
+				solverDFS = Solver(maze.maze, maze.x, maze.y, maze.start, maze.end)
+				solverDFS.DFS()
+				DFSPath = solverDFS.finalPath
+				if geneticPath != []:
+					maze.display(DFSPath, geneticPath)
 			
 	def stepMulti(self, steps=1):
 		for i in range(steps):
@@ -196,7 +208,7 @@ if __name__ == "__main__":
 	mazeSize = 10
 	# generate maze
 	evolver = CoEvolver(10, 10, 25, 25, 10, 10)
-	evolver.stepMulti(100)
+	evolver.stepMulti(250)
 	evolver.showAllMazes()
 
 	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)
