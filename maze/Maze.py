@@ -157,17 +157,26 @@ class Maze:
 		# print("parent1: " + str(len(parent1)))
 		# print("parent2: " + str(len(parent2)))
 		# return offspring1, offspring2
-		offspring1 = ([[0 for i in range(self.x)] for j in range(self.y)])
-		offspring2 = ([[0 for i in range(self.x)] for j in range(self.y)])
+		offspring1 = self.maze
+		offspring2 = parent2.maze
+		
+		centerX = random.randrange(1, self.x - 1)
+		centerY = random.randrange(1, self.y - 1)
+		radius = 1
+		positions = []
+		for i in range(-1 * radius, radius + 1):
+			for j in range(-1 * radius, radius + 1):
+				if (centerX + i >= 0 and centerX + i < self.x and centerY + j >= 0 and centerY + j < self.y):
+					positions.append((centerX + i, centerY + j))
+		
 
-		for x in range(self.x):
-			for y in range(self.y):
-				if random.random() < 0.5:  # 50% chance of selecting from parent1
-					offspring1[x][y] = self.maze[x][y]
-					offspring2[x][y] = parent2.maze[x][y]
-				else:  # 50% chance of selecting from parent2
-					offspring1[x][y] = parent2.maze[x][y]
-					offspring2[x][y] = self.maze[x][y]
+		for (x, y) in positions:
+			if random.random() < 0.5:  # 50% chance of selecting from parent1
+				offspring1[x][y] = self.maze[x][y]
+				offspring2[x][y] = parent2.maze[x][y]
+			else:  # 50% chance of selecting from parent2
+				offspring1[x][y] = parent2.maze[x][y]
+				offspring2[x][y] = self.maze[x][y]
 		return Maze(self.x, self.y, offspring1, self.start, self.end), Maze(self.x, self.y, offspring2, self.start, self.end)
 
 	def mutate(self):
@@ -189,10 +198,6 @@ class Maze:
 	
 			temp[empty[0]][empty[1]] = 1
 			temp[tile[0]][tile[1]] = 0
-	
-			# Check if maze is still solvable
-		solver = Solver(temp, self.x, self.y, self.start, self.end)
-		path = solver.DFS()
 		return Maze(self.x, self.y, temp, self.start, self.end)
 
 	def depthGenerate(self, pos, visited=[]):

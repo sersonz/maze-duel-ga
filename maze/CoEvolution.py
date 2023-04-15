@@ -9,7 +9,10 @@ sys.path.append(parent_directory + "/solver")
 from GeneticSolver import GeneticSolver
 from Solver import Solver
 
+PROB_TOURNAMENT_SELECTION_NEXT_HIGHEST = 0.75
+
 class CoEvolver:
+	
 
 	def __init__(self, x, y, mazeCount, solverCount, initialLength, lengthenPeriod):
 		if x < 1 or y < 1:
@@ -140,7 +143,13 @@ class CoEvolver:
 					members = random.sample(self.mazes, tournament_size)
 					fitnesses = [(x, self.evaluateMaze(x)) for x in members]
 					fitnesses = sorted(fitnesses, key=lambda x: x[1], reverse=True)
-					result.append(fitnesses[0][0])
+					selection = random.random()
+					winnerIndex = 0
+					while(selection != PROB_TOURNAMENT_SELECTION_NEXT_HIGHEST * (1 - PROB_TOURNAMENT_SELECTION_NEXT_HIGHEST) ** winnerIndex):
+						winnerIndex += 1
+						if winnerIndex == len(fitnesses) - 1:
+							break
+					result.append(fitnesses[winnerIndex][0])
 			case "ms":
 				result = []
 				mating_pool_size = len(self.solvers)
@@ -219,7 +228,7 @@ if __name__ == "__main__":
 	mazeSize = 10
 	# generate maze
 	evolver = CoEvolver(10, 10, 25, 25, 10, 10)
-	evolver.stepMulti(10)
+	evolver.stepMulti(100)
 	evolver.showAllMazes()
 
 	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)
