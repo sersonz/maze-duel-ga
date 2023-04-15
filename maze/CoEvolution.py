@@ -67,10 +67,17 @@ class CoEvolver:
 					pass
 				else:
 					current = nextMove
-			path.append(current)
+			if maze.maze[current[0]][current[1]] == 0:
+				path.append(current)
 		return path
 	
 	def evaluateMaze(self, maze):
+		solver = Solver(maze.maze, maze.x, maze.y, maze.start, maze.end)
+		dfsPath = solver.DFS()
+		# If the maze is unsolvable,
+		# assign it a fitness of 1
+		if not dfsPath:
+			return 1
 		euc = lambda x1, x2, y1, y2: ((x1-x2)**2 + (y1-y2)**2)**0.5
 		total_fitness = 0
 		for solver in self.solvers:
@@ -141,7 +148,7 @@ class CoEvolver:
 				for i in range(mating_pool_size):
 					members = random.sample(self.solvers, tournament_size)
 					fitnesses = [(x, self.evaluateSolver(x)) for x in members]
-					fitnesses = sorted(fitnesses, key=lambda x: x[1], reverse=True)
+					fitnesses = sorted(fitnesses, key=lambda x: x[1])
 					result.append(fitnesses[0][0])
 		return result
 		
@@ -212,7 +219,7 @@ if __name__ == "__main__":
 	mazeSize = 10
 	# generate maze
 	evolver = CoEvolver(10, 10, 25, 25, 10, 10)
-	evolver.stepMulti(250)
+	evolver.stepMulti(10)
 	evolver.showAllMazes()
 
 	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)

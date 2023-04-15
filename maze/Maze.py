@@ -33,9 +33,9 @@ class Maze:
 			self.end = end
 			self.popSize = None
 			self.genLimit = None
-            # To prevent ties, we assign
-            # a random fitness modifier to each maze
-			self.radiation = random.uniform(0.999, 1.001)           
+			# To prevent ties, we assign
+			# a random fitness modifier to each maze
+			self.radiation = random.uniform(0.999, 1.001)			
 
 	def initMaze(self, method="depth", popSize=None, genLimit=None, maze=None):
 		'''
@@ -168,7 +168,6 @@ class Maze:
 				else:  # 50% chance of selecting from parent2
 					offspring1[x][y] = parent2.maze[x][y]
 					offspring2[x][y] = self.maze[x][y]
-
 		return Maze(self.x, self.y, offspring1, self.start, self.end), Maze(self.x, self.y, offspring2, self.start, self.end)
 
 	def mutate(self):
@@ -194,10 +193,7 @@ class Maze:
 			# Check if maze is still solvable
 		solver = Solver(temp, self.x, self.y, self.start, self.end)
 		path = solver.DFS()
-		if path:
-			return Maze(self.x, self.y, temp, self.start, self.end)
-		else:
-			return None
+		return Maze(self.x, self.y, temp, self.start, self.end)
 
 	def depthGenerate(self, pos, visited=[]):
 		visited.append(pos)
@@ -288,13 +284,13 @@ class Maze:
 
 
 if __name__ == "__main__":
-    method = "genetic"
-    population = 100
-    generations = 100
-    maze = Maze(10, 10)
-    maze.initMaze(method, population, generations)
-    maze.display()
-    # maze.mutation()
-    # maze.display()
-    # print(maze.start)
-    # print(type(maze.asGeneticObject()))
+	method = "genetic"
+	population = 100
+	generations = 100
+	maze = Maze(10, 10)
+	maze.initMaze(method, population, generations)
+	maze.display()
+	# maze.mutation()
+	# maze.display()
+	# print(maze.start)
+	# print(type(maze.asGeneticObject()))
