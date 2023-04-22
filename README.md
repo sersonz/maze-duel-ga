@@ -1,6 +1,7 @@
 # maze-duel-ga
-Applications of Dueling Genetic Algorithms to Maze Problems
 CISC 455 Research Project
+
+Applications of Dueling Genetic Algorithms to Maze Problems
 
 Queen's University
 
