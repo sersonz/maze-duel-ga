@@ -153,13 +153,12 @@ class Maze:
 		else:
 			return 1
 
-	def crossover(self, parent2):
+	def crossover(self, parent2, method="radius"):
 		# print("parent1: " + str(len(parent1)))
 		# print("parent2: " + str(len(parent2)))
 		# return offspring1, offspring2
 		offspring1 = self.maze
 		offspring2 = parent2.maze
-		
 		centerX = random.randrange(1, self.x - 1)
 		centerY = random.randrange(1, self.y - 1)
 		radius = 1
@@ -168,15 +167,9 @@ class Maze:
 			for j in range(-1 * radius, radius + 1):
 				if (centerX + i >= 0 and centerX + i < self.x and centerY + j >= 0 and centerY + j < self.y):
 					positions.append((centerX + i, centerY + j))
-		
-
 		for (x, y) in positions:
-			if random.random() < 0.5:  # 50% chance of selecting from parent1
-				offspring1[x][y] = self.maze[x][y]
-				offspring2[x][y] = parent2.maze[x][y]
-			else:  # 50% chance of selecting from parent2
-				offspring1[x][y] = parent2.maze[x][y]
-				offspring2[x][y] = self.maze[x][y]
+			offspring1[x][y] = parent2.maze[x][y]
+			offspring2[x][y] = self.maze[x][y]
 		return Maze(self.x, self.y, offspring1, self.start, self.end), Maze(self.x, self.y, offspring2, self.start, self.end)
 
 	def mutate(self):

@@ -42,6 +42,7 @@ class CoEvolver:
 		# 0 is stop, 1 is north, 2 is south, 3 is east, 4 is west
 		path = []
 		current = start
+		prevMove = current
 		for i in range(len(solverPath)):
 			direction = int(solverPath[i])
 			if direction == 0:
@@ -60,18 +61,20 @@ class CoEvolver:
 					current = nextMove
 			elif direction == 3:
 				nextMove = (current[0] + 1, current[1])
-				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze):
+				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze[1]):
 					pass
 				else:
 					current = nextMove
 			elif direction == 4:
 				nextMove = (current[0] - 1, current[1])
-				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze):
+				if nextMove[0] < 0 or nextMove[0] >= len(maze.maze[1]):
 					pass
 				else:
 					current = nextMove
-			if maze.maze[current[0]][current[1]] == 0:
+			if maze.maze[nextMove[0]][nextMove[1]] == 0:
 				path.append(current)
+			else:
+				current = prevMove
 		return path
 	
 	def evaluateMaze(self, maze):
