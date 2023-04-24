@@ -197,7 +197,13 @@ class CoEvolver:
 			fitness = self.evaluateSolver(solver)
 			fitness_ms += fitness
 			fitnesses_ms.append(fitness)
-		print("Generation " + str(self.currentGen) + ": " + str(fitness_mg / len(self.mazes)) + "/" + str(fitness_ms / len(self.solvers)))
+		# print("Generation " + str(self.currentGen) + ": " + str(fitness_mg / len(self.mazes)) + "/" + str(fitness_ms / len(self.solvers)))
+
+		print("                 +--------+---------+")
+		print(" Generation {:03d}: | Mazes  | Solvers |".format(self.currentGen))
+		print("+----------------+--------+---------+")
+		print("| Avg Fitness    | {:.3f} | {:.3f}   |".format(fitness_mg / len(self.mazes), fitness_ms / len(self.solvers)))
+		print("+----------------+--------+---------+")
 		self.currentGen += 1
 		
 	def showAllMazes(self):
