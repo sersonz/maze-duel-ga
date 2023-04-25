@@ -29,12 +29,15 @@ The project is structured as follows:
 
 ```
 .
-├── common/            # directory for storing common code and constants
-├── maze.py            # code for generating mazes
-├── solver.py          # code for generating maze solvers
-├── coevolution.py     # code for the main coevolution algorithm
-├── README.md          # this file
-└── LICENSE            # license file  
+├── common/                # directory for storing common code and constants
+├── maze/                  # directory for storing maze-generator code
+│   ├── Maze.py            # code for generating mazes
+│   ├── Solver.py          # code for generating DFS and BFS solvers
+│   └── CoEvolution.py     # code for running the dueling genetic algorithms
+├── solver/                # directory for storing maze-solvers code
+│   └── GeneticSolver.py   # code for generating genetic solvers
+├── README.md              # this file
+└── LICENSE                # license file  
 ```
 
 Authors: Zedrick Serson, Youngjun Lee, Benjamin Hui, Zarrin Tasnim
