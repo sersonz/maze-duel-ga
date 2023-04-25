@@ -154,9 +154,6 @@ class Maze:
 			return 1
 
 	def crossover(self, parent2, method="radius"):
-		# print("parent1: " + str(len(parent1)))
-		# print("parent2: " + str(len(parent2)))
-		# return offspring1, offspring2
 		offspring1 = self.maze
 		offspring2 = parent2.maze
 		centerX = random.randrange(1, self.x - 1)
