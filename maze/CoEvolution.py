@@ -71,9 +71,13 @@ class CoEvolver:
 					pass
 				else:
 					current = nextMove
-			if maze.maze[nextMove[0]][nextMove[1]] == 0:
-				path.append(current)
-			else:
+			try:
+				if maze.maze[nextMove[0]][nextMove[1]] == 0:
+					path.append(current)
+				else:
+					current = prevMove
+			except:
+				print(nextMove[0], nextMove[1])
 				current = prevMove
 		return path
 	
@@ -236,8 +240,8 @@ if __name__ == "__main__":
 	mazePop = 100
 	mazeSize = 10
 	# generate maze
-	evolver = CoEvolver(10, 10, 25, 25, 10, 10)
-	evolver.stepMulti(100)
+	evolver = CoEvolver(20, 20, 10, 25, 50, 10)
+	evolver.stepMulti(500)
 	evolver.showAllMazes()
 
 	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)

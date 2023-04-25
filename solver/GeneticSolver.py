@@ -16,10 +16,15 @@ class GeneticSolver:
 		self.radiation = random.uniform(0.999, 1.001)
 	
 	def init(self):
+		options = [0, 1, 2, 3, 4]
 		if self.string != "":
 			self.string = ""
+		self.string += str(random.choice(options))
 		for i in range(self.length):
-			self.string += str(random.randrange(0, 5))
+			choice = str(random.choice(options))
+			while choice == self.string[-1]:
+				choice = str(random.choice(options))
+			self.string += choice
 			
 	def mutate(self):
 		point = random.randrange(0, len(self.string))
