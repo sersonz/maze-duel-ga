@@ -45,6 +45,13 @@ class CoEvolver:
 
 
 	def tracePath(self, solverPath, maze, start):
+		"""
+		Trace the path of a solver on a maze
+		:param solverPath: path of solver (a string of 0s, 1s, 2s, 3s, 4s)
+		:param maze: maze to trace path on
+		:param start: start position of solver
+		:return: path of solver on maze
+		"""
 		# trace path of solver on maze
 		# 0 is stop, 1 is north, 2 is south, 3 is east, 4 is west
 		path = []
@@ -85,6 +92,15 @@ class CoEvolver:
 		return path
 	
 	def evaluateMaze(self, maze):
+		"""
+		Evaluates the fitness of a maze
+		Calculates the fitness of a maze by running it against a solver and
+		calculating the euclidean distance between the end of the path
+		and the end of the maze
+
+		:param maze: maze to be evaluated
+		:return: fitness of maze
+		"""
 		solver = Solver(maze.maze, maze.x, maze.y, maze.start, maze.end)
 		dfsPath = solver.DFS()
 		# If the maze is unsolvable,
@@ -107,8 +123,21 @@ class CoEvolver:
 		return (total_fitness / len(self.solvers)) * maze.radiation
 		
 	def evaluateSolver(self, solver):
+		"""
+		Evaluates the fitness of a solver
+		Calculates the fitness of a solver by running it on a maze and 
+		calculating the euclidean distance between the end of the path 
+		and the end of the maze
+		
+		:param solver: solver to be evaluated
+		:return: fitness of solver
+		"""
 		euc = lambda x1, x2, y1, y2: ((x2-x1)**2 + (y2-y1)**2)**0.5
 		total_fitness = 0
+		# if the last move of the solver is on the end of the maze,
+		# assign it a fitness of 1
+		if solver.asGeneticObject()[-1] == 0:
+			return 100
 		for maze in self.mazes:
 			atEnd = False
 			path = self.tracePath(solver.asGeneticObject(), maze, maze.start)
@@ -120,14 +149,17 @@ class CoEvolver:
 			if not atEnd:
 				total_distance = euc(path[-1][0], maze.end[0], path[-1][1], maze.end[1])
 				total_fitness += total_distance / len(path)
-		return (total_fitness / len(self.mazes)) * solver.radiation
+		return (total_fitness / len(self.mazes)) 
 		
 	def survivorSelection(self, algorithm="mg"):
+		"""
+		Survivor selection algorithm for both mg and ms algorithms
+		Both algorithms use mu + lambda selection
+		:param algorithm: "mg" or "ms"
+		
+		"""
 		match algorithm:
 			case "mg":
-				# Will use mu+lambda selection just to test
-				# We have 2 weeks to revise if this is a bad choice,
-				# but we're under a bit of time pressure
 				mazes = []
 				for maze in self.mazes:
 					mazes.append((maze, self.evaluateMaze(maze)))
@@ -146,9 +178,6 @@ class CoEvolver:
 				# lambda_ = sorted(lambda_, key=lambda x: x[1])
 				# self.mazes = [x[0] for x in mu[:self.mazeCount]] + [x[0] for x in lambda_[:self.mazeCount]]
 			case "ms":
-				# Will use mu+lambda selection just to test
-				# We have 2 weeks to revise if this is a bad choice,
-				# but we're under a bit of time pressure
 				solvers = []
 				for solver in self.solvers:
 					solvers.append((solver, self.evaluateSolver(solver)))
@@ -156,6 +185,12 @@ class CoEvolver:
 				self.solvers = [x[0] for x in fitness][:self.solverCount]				
 				
 	def parentSelection(self, algorithm="mg"):
+		"""
+		Parent selection algorithm for both mg and ms algorithms
+		Both algorithms use tournament selection
+		:param algorithm: "mg" or "ms"
+		:return: list of parents
+		"""
 		match algorithm:
 			case "mg":
 				result = []
@@ -179,11 +214,23 @@ class CoEvolver:
 				for i in range(mating_pool_size):
 					members = random.sample(self.solvers, tournament_size)
 					fitnesses = [(x, self.evaluateSolver(x)) for x in members]
-					fitnesses = sorted(fitnesses, key=lambda x: x[1])
+					fitnesses = sorted(fitnesses, key=lambda x: x[1], reverse=True)
 					result.append(fitnesses[0][0])
 		return result
 		
 	def step(self):
+		"""
+		Driver function for a single step of the genetic algorithm
+		For both mg and ms algorithms, this function does the following:
+			1. Select parents
+			2. Crossover parents
+			3. Mutate children
+			4. Add children to population
+			5. Select survivors
+
+		Calculates average fitnesses for all mazes and solvers in the population 
+
+		"""
 		parents = self.parentSelection(algorithm="mg")
 		for j in range(len(parents) - 1):
 			mgChild1, mgChild2 = parents[j].crossover(parents[j+1])
@@ -235,7 +282,6 @@ class CoEvolver:
 		for maze in self.mazes:
 			for solver in self.solvers:
 				solver = solver.asGeneticObject()
-				# path = self.getPath(solver, maze.start)
 				geneticPath = self.tracePath(solver, maze, maze.start)
 				solverDFS = Solver(maze.maze, maze.x, maze.y, maze.start, maze.end)
 				solverDFS.DFS()
@@ -257,7 +303,7 @@ if __name__ == "__main__":
 	mazeSize = 10
 	# generate maze
 	evolver = CoEvolver(10, 10, 25, 25, 10, 10)
-	evolver.stepMulti(100)
+	evolver.stepMulti(500)
 	evolver.showAllMazes()
 
 	# DFSPath = Solver(mazeSize, mazeSize, maze.start, maze.end, maze.maze)
